@@ -62,3 +62,41 @@ Week 3: Kubernetes Deployment
    - Get the public URL using:
      kubectl get services
    - Open the URL in a browser to check if everything works.
+
+
+ Week 4: CI/CD Pipeline Integration
+ Deliverables:
+- Configure Jenkins or GitHub Actions to automate build, test, and deployment.
+- Set up triggers for code changes to automatically deploy updated builds.
+- Validate the pipeline for successful integration and deployment.
+
+ Steps:
+1. CI/CD Pipeline Setup:**
+   - Configure Jenkins inside a Docker container.
+   - Create a Jenkinsfile to automate build and deployment steps.
+   - Alternatively, set up GitHub Actions workflow "https://github.com/shivadornala/food-web-app/blob/main/.github/workflows/cicd-pipeline.yml"
+     
+2. Build Automation:
+   - Automate Docker image building and pushing to AWS ECR.
+   - Ensure Terraform scripts deploy updated infrastructure if needed.
+     
+3. Trigger Configuration:
+   - Enable webhooks for GitHub to trigger Jenkins/GitHub Actions on code changes.
+   - Validate auto-deployment after each commit.
+
+
+ Week 5: Monitoring and Logging
+ Deliverables:
+- Integrate AWS CloudWatch for logs and application performance monitoring.
+- Set up Grafana for monitoring Kubernetes clusters.
+- Create alerts for key performance metrics (response time, server uptime).
+
+Steps:
+1. CloudWatch Setup:
+   - Enable CloudWatch logs and metrics for EC2 instances and EKS pods.
+   - Configure CloudWatch Alarms for failures and performance degradation.
+2.  Grafana Integration:
+    - Configure Grafana dashboards for real-time monitoring.
+    - Set up alerts based on predefined thresholds.
+
+
