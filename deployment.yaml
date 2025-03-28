@@ -1,24 +1,42 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: "apps/v1"
+kind: "Deployment"
 metadata:
-  name: my-deployment
+  name: "food-web-app"
   labels:
-    app: my-deployment
+    app: "food-web-app"
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
-      app: my-app
+      app: "food-web-app"
   template:
     metadata:
       labels:
-        app: my-app
+        app: "food-web-app"
     spec:
-     containers:
-     - name: my-container
-       image: 779846788677.dkr.ecr.ap-south-1.amazonaws.com/my-flask-app
-       ports:
+      containers:
+      - name: "food-web-app"
+        image: "779846788677.dkr.ecr.ap-south-1.amazonaws.com/food-web-app:latest"
+        imagePullPolicy: "Always"
+        ports:
         - containerPort: 5000
-       envFrom:
-         - secretRef:      
-             name: my-secret
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+
