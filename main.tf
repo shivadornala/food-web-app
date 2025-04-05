@@ -2,8 +2,6 @@ provider "aws" {
   region = "ap-south-1"
 }
 
-# Filter out local zones, which are not currently supported
-# with managed node groups
 data "aws_availability_zones" "available" {
   filter {
     name   = "opt-in-status"
@@ -11,80 +9,13 @@ data "aws_availability_zones" "available" {
   }
 }
 
-locals {
-  cluster_name = "education-eks-${random_string.suffix.result}"
-}
-
 resource "random_string" "suffix" {
   length  = 8
   special = false
 }
 
-# Security group for load balancer
-resource "aws_security_group" "load_balancer" {
-  name        = "eks-load-balancer-sg"
-  description = "Security group for EKS load balancer"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow HTTP traffic"
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow HTTPS traffic"
-  }
-
-  ingress {
-    from_port   = 5000
-    to_port     = 5000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow application traffic"
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "eks-load-balancer-sg"
-  }
-}
-
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "5.8.1"
-
-  name = "education-vpc"
-
-  cidr = "10.0.0.0/16"
-  azs  = slice(data.aws_availability_zones.available.names, 0, 3)
-
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
-
-  enable_nat_gateway   = true
-  single_nat_gateway   = true
-  enable_dns_hostnames = true
-
-  public_subnet_tags = {
-    "kubernetes.io/role/elb" = 1
-  }
-
-  private_subnet_tags = {
-    "kubernetes.io/role/internal-elb" = 1
-  }
+locals {
+  cluster_name = "education-eks-${random_string.suffix.result}"
 }
 
 module "eks" {
@@ -112,28 +43,23 @@ module "eks" {
 
   eks_managed_node_groups = {
     one = {
-      name = "node-group-1"
-
+      name           = "node-group-1"
       instance_types = ["t3.small"]
-
-      min_size     = 1
-      max_size     = 3
-      desired_size = 2
+      min_size       = 1
+      max_size       = 3
+      desired_size   = 2
     }
 
     two = {
-      name = "node-group-2"
-
+      name           = "node-group-2"
       instance_types = ["t3.small"]
-
-      min_size     = 1
-      max_size     = 2
-      desired_size = 1
+      min_size       = 1
+      max_size       = 2
+      desired_size   = 1
     }
   }
 }
 
-# https://aws.amazon.com/blogs/containers/amazon-ebs-csi-driver-is-now-generally-available-in-amazon-eks-add-ons/
 data "aws_iam_policy" "ebs_csi_policy" {
   arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
 }
